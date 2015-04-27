@@ -1,0 +1,4 @@
+name: ComUtils
+main: net.mcviral.dev.plugins.comutils.main.ComUtils
+version: 1.0
+author: comdude2
