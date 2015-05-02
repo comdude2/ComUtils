@@ -22,6 +22,11 @@ public class WorldSaver implements Runnable{
 
 			@Override
 			public void run() {
+				boolean zero = true;
+				if (tasks.size() > 0){
+					utils.log.info("Cleaning up copy threads...");
+					zero = false;
+				}
 				for (CopyTask t : tasks){
 					if (t.isFinished()){
 						tasks.remove(t);
@@ -29,7 +34,11 @@ public class WorldSaver implements Runnable{
 						if (w != null){
 							w.setAutoSave(true);
 						}
+						utils.log.info("Removed copy thread for world: " + t.getWorldName());
 					}
+				}
+				if (zero == false){
+					utils.log.info("Finished cleaning.");
 				}
 			}
 			
@@ -58,19 +67,21 @@ public class WorldSaver implements Runnable{
 			utils.getServer().broadcastMessage(ChatColor.GRAY + "[Server] Saving worlds...");
 			int id = -1;
 			for (World w : utils.getServer().getWorlds()){
-				File[] files = new File(utils.getDataFolder() + "/worlds/set " + next + "/" + w.getName() + "/").listFiles();
-				for (File f : files){
-					try{
-						f.delete();
-					}catch(Exception e){
-						utils.log.warning("Failed to delete: " + e.getMessage());
+				File[] files = new File(utils.getDataFolder() + "/worlds/set " + next + "/").listFiles();
+				if (files.length > 0){
+					for (File f : files){
+						try{
+							f.delete();
+						}catch(Exception e){
+							utils.log.warning("Failed to delete: " + e.getMessage());
+						}
 					}
 				}
 				try{
 					w.setAutoSave(false);
 					w.save();
 					CopyTask t = new CopyTask(w.getName(), w.getWorldFolder(), new File(utils.getDataFolder() + "/worlds/set " + next + "/" + w.getName() + "/"));
-					id = utils.getServer().getScheduler().scheduleAsyncRepeatingTask(utils, t, 2400L, 6000L);
+					id = utils.getServer().getScheduler().scheduleAsyncDelayedTask(utils, t, 0L);
 					t.setID(id);
 				}catch(Exception e){
 					e.printStackTrace();

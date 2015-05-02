@@ -4,7 +4,11 @@ import java.io.File;
 
 import net.mcviral.dev.plugins.comutils.util.Log;
 import net.mcviral.dev.plugins.comutils.util.WorldSaver;
+import net.md_5.bungee.api.ChatColor;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ComUtils extends JavaPlugin{
@@ -24,6 +28,7 @@ public class ComUtils extends JavaPlugin{
 	}
 	
 	public void onDisable(){
+		stopSchedule();
 		listeners.unregister();
 	}
 	
@@ -51,16 +56,31 @@ public class ComUtils extends JavaPlugin{
 	}
 	
 	public int scheduleSaves(){
-		//this.getServer().getWorld("").save();
 		saver = new WorldSaver(this);
-		int id = this.getServer().getScheduler().scheduleSyncRepeatingTask(this, saver, 3600L, 2400L);
-		//saver.run();
+		int id = this.getServer().getScheduler().scheduleSyncRepeatingTask(this, saver, 2400L, 6000L);
 		return id;
 	}
 	
 	public void stopSchedule(){
 		saver.stop();
 		this.getServer().getScheduler().cancelTask(saves);
+	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		if (cmd.getName().equalsIgnoreCase("uuid")) {
+			if (sender instanceof Player){
+				Player p = (Player) sender;
+				if (args.length > 0){
+					
+				}else{
+					sender.sendMessage(ChatColor.GREEN + "Your UUID: " + p.getUniqueId());
+				}
+			}
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 }
